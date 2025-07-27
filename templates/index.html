@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Chatbot</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e9eff1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #2c3e50;
+        }
+
+        #chat-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #chatbox {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+
+        .user, .bot {
+            margin: 8px 0;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 75%;
+            clear: both;
+        }
+
+        .user {
+            background-color: #dff0ff;
+            color: #000;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+
+        .bot {
+            background-color: #d1ffd1;
+            color: #000;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+
+        #input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #ffffff;
+            border-top: 1px solid #ccc;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h2>College Chatbot</h2>
+    <div id="chat-container">
+        <div id="chatbox"></div>
+        <div id="input-area">
+            <input type="text" id="userInput" placeholder="Type your message..." onkeydown="if(event.key === 'Enter') sendMessage()" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const userText = document.getElementById("userInput").value.trim();
+            if (userText === "") return;
+
+            const chatbox = document.getElementById("chatbox");
+
+            const userMessage = document.createElement("div");
+            userMessage.className = "user";
+            userMessage.innerHTML = `<b>You:</b> ${userText}`;
+            chatbox.appendChild(userMessage);
+
+            fetch("/get", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "msg=" + encodeURIComponent(userText)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const botMessage = document.createElement("div");
+                botMessage.className = "bot";
+                botMessage.innerHTML = `<b>Bot:</b> ${data.response}`;
+                chatbox.appendChild(botMessage);
+                chatbox.scrollTop = chatbox.scrollHeight;
+            });
+
+            document.getElementById("userInput").value = "";
+        }
+    </script>
+</body>
+</html>
